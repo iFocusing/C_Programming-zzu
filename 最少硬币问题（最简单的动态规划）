@@ -1,0 +1,26 @@
+#include<stdio.h>
+#include<math.h>
+int main()
+{
+	int CoinValue[3]={1,3,5};
+	int d[12];
+	int i,j,s;  //s stand for the sum of value;
+	d[0]=0;
+	while(scanf("%d",&s)!=EOF)
+	{
+        for(i=0;i<=s;i++)
+	      d[i]=i;                 
+
+		for(i=0;i<=s;i++)
+	  {
+		for(j=0;j<3;j++)
+		{
+			if(CoinValue[j]<=i&&d[i-CoinValue[j]]+1<d[i])
+              d[i]=d[i-CoinValue[j]]+1;
+		}
+    }
+	printf("%d\n",d[s]);
+    }
+	getchar();
+	return 0;
+}
