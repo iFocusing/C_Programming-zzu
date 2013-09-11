@@ -1,0 +1,772 @@
+#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
+#include<math.h>
+
+struct BooksInfo
+{
+   char booknumber[10];
+   char bookname[20];
+   char author[20];             
+   char publisher[20];         
+   char pbtime[16];                                        
+   char classfy[10];            
+   struct BooksInfo *next; 
+};
+
+void SaveToFile(struct BooksInfo *current)
+{
+    FILE *fp1;
+    fp1=fopen("AllBook.txt","a+");
+	if(fp1==NULL)
+	 {
+	  printf("Storage file is missing.\n"); 
+	  exit(1);
+      }
+    else
+    {
+        while(current!=NULL)
+        {
+        fprintf(fp1, "%s ",current->booknumber);
+        fprintf(fp1,"%s ",current->bookname);
+       fprintf(fp1,"%s ",current->author);
+       fprintf(fp1,"%s ",current->publisher);
+       fprintf(fp1,"%s ",current->pbtime);
+       fprintf(fp1,"%s",current->classfy);
+       putc('\n',fp1);
+       current=current->next;
+       }
+       printf("Those books are saved in file.\n");    
+    } 
+    fclose(fp1);    
+}
+
+void AddBooks()
+{ system("cls");
+   char input[10];
+   struct BooksInfo *head=NULL;
+   struct BooksInfo *prev,*current;
+   //收集并存储书籍信息；
+   printf("Enter the booknumber:\n");
+   fflush(stdin);
+   scanf("%s",input);
+   getchar();
+   while(input[0]!='#')
+    {
+      current=(struct BooksInfo *)malloc(sizeof(struct BooksInfo)); 
+      if(head==NULL)
+         head=current;
+      else
+         prev->next=current;
+      current->next=NULL;
+      strcpy(current->booknumber,input);
+      puts("Enter the bookname:");
+      scanf("%s",current->bookname);
+      puts("Enter the author:");
+      scanf("%s",current->author);
+      puts("Enter the publisher:");
+      scanf("%s",current->publisher);
+      puts("Enter the pbtime:");
+      scanf("%s",current->pbtime);
+      puts("Enter the classfy:");
+      scanf("%s",current->classfy);
+      puts("Enter the next booknumber(input '#' to stop):");
+      scanf("%s",input);
+      getchar();
+      prev=current;
+    } 
+    SaveToFile(head);
+    printf("It's over,return to menu.");
+    //任务完成，释放所分配的内存。
+    current=head;
+    while(current!=NULL)
+    {
+      free(current);
+      current=current->next;                    
+    } 
+}
+
+struct BooksInfo * ReadInfoToLinkedList()
+{ 
+   char ch;
+   struct BooksInfo *head=NULL;
+   struct BooksInfo *current,*prev;
+   FILE *fp1;
+   fp1=fopen("AllBook.txt","r");
+	if(fp1==NULL)
+	 {
+	  printf("Storage file is missing.\n"); 
+	  exit(1);
+      }
+    else
+    {
+      fflush(stdin); 
+      fseek(fp1,0L,SEEK_SET);
+      while(!feof(fp1))
+      {
+      current=(struct BooksInfo *)malloc(sizeof(struct BooksInfo));
+      if(head==NULL)
+        head=current;
+      else
+        prev->next=current;
+      
+      fscanf(fp1,"%s%s%s%s%s%s",current->booknumber,current->bookname,current->author,current->publisher,current->pbtime,current->classfy);     
+      current->next=NULL;
+      ch=getc(fp1);
+      prev=current;
+      }
+      fclose(fp1);
+    }   
+    return head;    
+}
+
+
+void PrintLinkedList(struct BooksInfo *head)
+{ system("cls");
+    struct BooksInfo *p;
+    p=head;
+
+    printf("Those are the books' infomation:\n");
+    if(p==NULL) 
+     {
+      printf("\n                      ━━━━  没有图书记录!  ━━━━\n\n");
+      return;
+     }
+    printf("┏━━━━━┳━━━━━━━┳━━━━━┳━━━━━━━┳━━━━┳━━━━┓\n");
+    printf("┃Booknumber┃ Bookname     ┃  Author  ┃ Publisher    ┃ Pbtime ┃ Classfy┃\n");
+    printf("┣━━━━━╋━━━━━━━╋━━━━━╋━━━━━━━╋━━━━╋━━━━┫\n");
+    while(p->next->next!= NULL)
+    {
+     p=p->next;
+     printf("┃%-10s┃%-14s┃%-10s┃%-14s┃%-8s┃%-8s┃\n",p->booknumber,p->bookname,p->author,p->publisher,p->pbtime,p->classfy);
+        fflush(stdin); 
+    }
+    printf("┗━━━━━┻━━━━━━━┻━━━━━┻━━━━━━━┻━━━━┻━━━━┛\n");
+    printf("\n");
+}
+
+
+void BooksList()
+{
+   struct BooksInfo *head;
+   //从文件中读取数据到链表；
+   head=ReadInfoToLinkedList(); 
+   //把链表中的信息显示出来；
+   PrintLinkedList(head);
+   printf("\n\n\n\t\t\t用户您好，按回车返回主菜单！\n");
+   getchar();    
+}
+
+void SearchBookByNumber()
+{ system("cls");
+    char inputnumber[20];
+    int flag=0;
+    printf("请输入要查询的书籍编号:\n");
+    scanf("%s",inputnumber);
+    struct BooksInfo *head,*p;
+   //从文件中读取数据到链表；
+    head=ReadInfoToLinkedList();
+    p=head;
+   //在链表里查询书籍；
+   if(p==NULL) 
+     {
+      printf("\n                      ━━━━  找不到图书记录!  ━━━━\n\n");
+      return;
+     }  
+    else
+    {
+       while(p->next!= NULL)
+       {
+         p=p->next; 
+         if(strcmp(p->booknumber,inputnumber)==0)
+         {
+            printf("┏━━━━━┳━━━━━━━┳━━━━━┳━━━━━━━┳━━━━┳━━━━┓\n");
+            printf("┃Booknumber┃ Bookname     ┃  Author  ┃ Publisher    ┃ Pbtime ┃ Classfy┃\n");
+            printf("┣━━━━━╋━━━━━━━╋━━━━━╋━━━━━━━╋━━━━╋━━━━┫\n");
+            printf("┃%-10s┃%-14s┃%-10s┃%-14s┃%-8s┃%-8s┃\n",p->booknumber,p->bookname,p->author,p->publisher,p->pbtime,p->classfy);
+            printf("┗━━━━━┻━━━━━━━┻━━━━━┻━━━━━━━┻━━━━┻━━━━┛\n");
+            printf("\n");
+            flag=1;                                        
+         } 
+       }
+       if(flag==0)
+       printf("抱歉，没有查询到此书！\n");
+       printf("\n\n\n\t\t\t用户您好，按回车返回查询菜单！\n");
+       getchar();
+     }  
+     return;
+}
+
+void SearchBookByName()
+{ system("cls");
+    char inputname[10];
+    int flag=0;
+    printf("请输入要查询的书籍名字:\n");
+    scanf("%s",inputname);
+    struct BooksInfo *head,*p;
+   //从文件中读取数据到链表；
+    head=ReadInfoToLinkedList();
+    p=head;
+   //在链表里查询书籍；
+   if(p==NULL) 
+     {
+      printf("\n                      ━━━━  找不到图书记录!  ━━━━\n\n");
+      return;
+     }  
+    else
+    {
+       while(p->next!= NULL)
+       {
+         p=p->next; 
+         if(strcmp(p->bookname,inputname)==0)
+         {
+            printf("┏━━━━━┳━━━━━━━┳━━━━━┳━━━━━━━┳━━━━┳━━━━┓\n");
+            printf("┃Booknumber┃ Bookname     ┃  Author  ┃ Publisher    ┃ Pbtime ┃ Classfy┃\n");
+            printf("┣━━━━━╋━━━━━━━╋━━━━━╋━━━━━━━╋━━━━╋━━━━┫\n");
+            printf("┃%10s┃%14s┃%10s┃%14s┃%8s┃%8s┃\n",p->booknumber,p->bookname,p->author,p->publisher,p->pbtime,p->classfy);
+            printf("┗━━━━━┻━━━━━━━┻━━━━━┻━━━━━━━┻━━━━┻━━━━┛\n");
+            printf("\n");
+            flag=1;                                        
+         } 
+       }
+       if(flag==0)
+      printf("抱歉，没有查询到此书！\n");
+      printf("\n\n\n\t\t\t用户您好，按回车返回查询菜单！\n");
+       getchar();
+     }       
+}
+
+void SearchBookByAuthor()
+{ system("cls");
+    char inputauthor[10];
+    int flag=0;
+    printf("请输入要查询的作者姓名:\n");
+    scanf("%s",inputauthor);
+    struct BooksInfo *head,*p;
+   //从文件中读取数据到链表；
+    head=ReadInfoToLinkedList();
+    p=head;
+   //在链表里查询书籍；
+   if(p==NULL) 
+     {
+      printf("\n                      ━━━━  找不到图书记录!  ━━━━\n\n");
+      return;
+     }  
+    else
+    {
+       while(p->next!= NULL)
+       {
+         p=p->next; 
+         if(strcmp(p->author,inputauthor)==0)
+         {
+            printf("┏━━━━━┳━━━━━━━┳━━━━━┳━━━━━━━┳━━━━┳━━━━┓\n");
+            printf("┃Booknumber┃ Bookname     ┃  Author  ┃ Publisher    ┃ Pbtime ┃ Classfy┃\n");
+            printf("┣━━━━━╋━━━━━━━╋━━━━━╋━━━━━━━╋━━━━╋━━━━┫\n");
+            printf("┃%10s┃%14s┃%10s┃%14s┃%8s┃%8s┃\n",p->booknumber,p->bookname,p->author,p->publisher,p->pbtime,p->classfy);
+            printf("┗━━━━━┻━━━━━━━┻━━━━━┻━━━━━━━┻━━━━┻━━━━┛\n");
+            printf("\n");
+            flag=1;                                        
+         } 
+       }
+       if(flag==0)
+       printf("抱歉，没有查询到此书！");
+       printf("\n\n\n\t\t\t用户您好，按回车返回查询菜单！\n");
+       getchar();
+     }           
+}
+
+void SearchBook()
+{ 
+for(;;)
+{
+  system("cls");    
+  fflush(stdin); 
+  int choice; 
+  printf("\n\n\n"); 
+  printf("             ┏━┓━━━━━━━━━━━━━━━━━━━┏━┓\n"); 
+  printf("             ┃  ┃              图书查询系统            ┃  ┃\n");
+  printf("             ┃  ┗━━━━━━━━━━━━━━━━━━━┛  ┃\n");
+  printf("             ┃               ●[1]按编号查询                ┃\n");
+  printf("             ┃               ●[2]按书名查询                ┃\n");
+  printf("             ┃               ●[3]按作者查询                ┃\n");
+  printf("             ┃               ●[4]返回主菜单                ┃\n");
+  printf("             ┗━━━━━━━━━━━━━━━━━━━━━━━┛\n");
+  printf("                               请选择:");
+  scanf("%d",&choice);
+  if(choice==1)
+    SearchBookByNumber();            
+  if(choice==2)
+    SearchBookByName(); 
+  if(choice==3)
+    SearchBookByAuthor();
+  if(choice==4)
+  {getchar();
+    return;}
+}   
+}
+
+// 链表冒泡排序的代码；
+struct BooksInfo * SORTByNumber(struct BooksInfo *head)
+{
+    struct BooksInfo * endpt=NULL;
+    struct BooksInfo * p=NULL; //临时指针变量；
+    struct BooksInfo * p1=NULL;  
+    struct BooksInfo * p2=NULL;
+    p1=(struct BooksInfo *)malloc(sizeof(struct BooksInfo));
+    p1->next=head;        //增加一个节点放在第一个节点的后面；因为第一个节点没有前驱，不便于比较；
+    head=p1;     //
+    for(endpt=NULL;endpt!=head;endpt=p)    //后面是排好序的链表，每排好一个让endpt向前面挪一个直到endpt挪到head指针结束； 
+    {
+       p=head;//?
+       for(p1=head;p1->next->next!=endpt;p1=p1->next)
+       {
+          if(strcmp(p1->next->booknumber,p1->next->next->booknumber)>0)  //如果前面的节点编号比后面的节点编号大的话，就交换；
+          {
+             p2=p1->next->next;
+             p1->next->next=p2->next;
+             p2->next=p1->next;
+             p1->next=p2;
+             p=p1->next->next;     //P->boonnumber 现在里面放的是 两者中较大的那个； p-〉next所指的是 两者中较大的那个；                                                      
+          }                                                
+       }  //遍历一遍链表 两两比较，把大的放后面，小的放前面；                                    
+    }        
+    p1=head;        //把p1的信息去掉；
+    head=head->next;        //让head指向排序后的第一个节点；
+    free(p1);
+    p1=NULL;      //把p1置为NULL，保证不产生“野指针”，即地址不正确的指针变量；
+    return head; 
+} 
+
+// 链表冒泡排序的代码；
+struct BooksInfo * SORTByName(struct BooksInfo *head)
+{
+    struct BooksInfo * endpt=NULL;
+    struct BooksInfo * p=NULL; //临时指针变量；
+    struct BooksInfo * p1=NULL;  
+    struct BooksInfo * p2=NULL;
+    p1=(struct BooksInfo *)malloc(sizeof(struct BooksInfo));
+    p1->next=head;        //增加一个节点放在第一个节点的后面；因为第一个节点没有前驱，不便于比较；
+    head=p1;     //
+    for(endpt=NULL;endpt!=head;endpt=p)    //后面是排好序的链表，每排好一个让endpt向前面挪一个直到endpt挪到head指针结束； 
+    {
+       p=head;//?
+       for(p1=head;p1->next->next!=endpt;p1=p1->next)
+       {
+          if(strcmp(p1->next->bookname,p1->next->next->bookname)>0)  //如果前面的节点编号比后面的节点编号大的话，就交换；
+          {
+             p2=p1->next->next;
+             p1->next->next=p2->next;
+             p2->next=p1->next;
+             p1->next=p2;
+             p=p1->next->next;     //P->boonnumber 现在里面放的是 两者中较大的那个； p-〉next所指的是 两者中较大的那个；                                                      
+          }                                                
+       }  //遍历一遍链表 两两比较，把大的放后面，小的放前面；                                    
+    }        
+    p1=head;        //把p1的信息去掉；
+    head=head->next;        //让head指向排序后的第一个节点；
+    free(p1);
+    p1=NULL;      //把p1置为NULL，保证不产生“野指针”，即地址不正确的指针变量；
+    return head; 
+}
+
+
+
+void BooksSortByNumber()
+{ system("cls");
+   char temp[10]; 
+   struct BooksInfo *head,*current,*p;
+   //从文件中读取数据到链表；
+   head=ReadInfoToLinkedList();
+   current=head;      
+   //把链表里的图书排序；
+   if(current==NULL) 
+     {
+      printf("\n                      ━━━━  找不到图书记录!  ━━━━\n\n");
+      return;
+     }  
+    else
+    {
+    p=SORTByNumber(current);
+     //打印出已经排好的链表；
+    printf("以下为已经按要求排好序的列表：\n"); 
+    printf("┏━━━━━┳━━━━━━━┳━━━━━┳━━━━━━━┳━━━━┳━━━━┓\n");
+    printf("┃Booknumber┃ Bookname     ┃  Author  ┃ Publisher    ┃ Pbtime ┃ Classfy┃\n");
+    printf("┣━━━━━╋━━━━━━━╋━━━━━╋━━━━━━━╋━━━━╋━━━━┫\n");
+    while(p->next->next!=NULL)
+       {
+         p=p->next; 
+         printf("┃%10s┃%14s┃%10s┃%14s┃%8s┃%8s┃\n",p->booknumber,p->bookname,p->author,p->publisher,p->pbtime,p->classfy);
+       } 
+      printf("┗━━━━━┻━━━━━━━┻━━━━━┻━━━━━━━┻━━━━┻━━━━┛\n");
+      printf("\n"); 
+   }
+}
+
+void BooksSortByName()
+{ system("cls");
+   char temp[20]; 
+   struct BooksInfo *head,*current,*p;
+   //从文件中读取数据到链表；
+   head=ReadInfoToLinkedList();
+   current=head;      
+   //把链表里的图书排序；
+   if(current==NULL) 
+     {
+      printf("\n                      ━━━━  找不到图书记录!  ━━━━\n\n");
+      return;
+     }  
+    else
+    {
+    p=SORTByName(current);
+     //打印出已经排好的链表；
+    printf("以下为已经按要求排好序的列表：\n"); 
+    printf("┏━━━━━┳━━━━━━━┳━━━━━┳━━━━━━━┳━━━━┳━━━━┓\n");
+    printf("┃Booknumber┃ Bookname     ┃  Author  ┃ Publisher    ┃ Pbtime ┃ Classfy┃\n");
+    printf("┣━━━━━╋━━━━━━━╋━━━━━╋━━━━━━━╋━━━━╋━━━━┫\n");
+    while(p->next->next!=NULL)
+       {
+         p=p->next; 
+         printf("┃%10s┃%14s┃%10s┃%14s┃%8s┃%8s┃\n",p->booknumber,p->bookname,p->author,p->publisher,p->pbtime,p->classfy);
+       } 
+      printf("┗━━━━━┻━━━━━━━┻━━━━━┻━━━━━━━┻━━━━┻━━━━┛\n");
+      printf("\n"); 
+   }
+}
+
+
+
+
+void BooksSort()
+{ 
+  for(;;)
+  {   
+  system("cls");
+  fflush(stdin);
+  int choice;
+  printf("\n\n\n");
+  printf("             ┏━┓━━━━━━━━━━━━━━━━━━━┏━┓\n"); 
+  printf("             ┃  ┃               图书排序               ┃  ┃\n");
+  printf("             ┃  ┗━━━━━━━━━━━━━━━━━━━┛  ┃\n");
+  printf("             ┃               ●[1]按编号排序                ┃\n");
+  printf("             ┃               ●[2]按书名排序                ┃\n");
+  printf("             ┃               ●[3]返回主菜单                ┃\n");
+  printf("             ┗━━━━━━━━━━━━━━━━━━━━━━━┛\n");
+  printf("                               请选择:");
+  scanf("%d",&choice);
+  if(choice==1)
+     {
+               BooksSortByNumber();//By number;
+               printf("\n\n\n\t\t\t用户您好，按回车返回主菜单！\n");
+               getchar();
+     }
+  else if(choice==2)
+     {
+     BooksSortByName();//By name;
+      printf("\n\n\n\t\t\t用户您好，按回车返回主菜单！\n");
+               getchar();
+     }
+  else if(choice==3)
+  {getchar();
+     return;
+     }
+    //这里需要返回主菜单； 
+}
+}
+
+void ModifySaveToFile(struct BooksInfo *current)
+{ 
+    FILE *fp1;
+    fp1=fopen("AllBook.txt","w");
+	if(fp1==NULL)
+	 {
+	  printf("Storage file is missing.\n"); 
+	  exit(1);
+      }
+    else
+    {
+        while(current->next!=NULL)
+        {
+        fprintf(fp1, "%s ",current->booknumber);
+        fprintf(fp1,"%s ",current->bookname);
+       fprintf(fp1,"%s ",current->author);
+       fprintf(fp1,"%s ",current->publisher);
+       fprintf(fp1,"%s ",current->pbtime);
+       fprintf(fp1,"%s",current->classfy);
+       putc('\n',fp1);
+       current=current->next;
+       }   
+    } 
+    fclose(fp1);    
+}
+
+
+
+
+void ModifyBookInfo()
+{ system("cls");
+  fflush(stdin);
+   int flag=0,h;
+   struct BooksInfo *p,*head;
+   char input[20];
+   //从文件中读入信息到链表里; 
+   head=ReadInfoToLinkedList();
+    printf("请输入要修改的书籍的编号(1)或者名称(2)或者作者(3)：");
+    scanf("%d",&h);
+    printf("\n");
+    if(h==2)
+    {    
+         printf("请输入书名：");
+         scanf("%s",input); 
+       //遍历链表以找到要修改的书籍节点;
+          p=head; 
+          while(p->next!= NULL)
+              {
+                p=p->next; 
+                if(strcmp(p->bookname,input)==0)
+                {
+                   printf("┏━━━━━┳━━━━━━━┳━━━━━┳━━━━━━━┳━━━━┳━━━━┓\n");
+                   printf("┃Booknumber┃ Bookname     ┃  Author  ┃ Publisher    ┃ Pbtime ┃ Classfy┃\n");
+                   printf("┣━━━━━╋━━━━━━━╋━━━━━╋━━━━━━━╋━━━━╋━━━━┫\n");
+                   printf("┃%10s┃%14s┃%10s┃%14s┃%8s┃%8s┃\n",p->booknumber,p->bookname,p->author,p->publisher,p->pbtime,p->classfy);
+                   printf("┗━━━━━┻━━━━━━━┻━━━━━┻━━━━━━━┻━━━━┻━━━━┛\n");
+                   printf("\n");
+                   printf("请输入修改后的书籍信息：\n");
+                   puts("Enter the booknumber:");
+                   scanf("%s",p->booknumber);
+                   puts("Enter the bookname:");
+                   scanf("%s",p->bookname);
+                   puts("Enter the author:");
+                    scanf("%s",p->author);
+                    puts("Enter the publisher:");
+                   scanf("%s",p->publisher);
+                  puts("Enter the pbtime:");
+                  scanf("%s",p->pbtime);
+                    puts("Enter the classfy:");
+                  scanf("%s",p->classfy);
+                  printf("\n\n");
+                  flag=1;
+                } 
+            }
+            if(flag==0)
+            printf("抱歉，没有找到你要修改的书籍。\n");
+            else
+            printf("该图书信息已经修改。\n"); 
+    //将已经修改的链表保存到文件中；
+    ModifySaveToFile(head); 
+    printf("\n\n\n\t\t\t用户您好，按回车返回主菜单！\n");
+    getchar();getchar();
+    }
+    else if(h==1)
+    {
+          printf("请输入编号：");
+         scanf("%s",input);
+        
+         p=head; 
+          while(p->next!= NULL)
+              {
+                p=p->next; 
+                if(strcmp(p->booknumber,input)==0)
+                {
+                   printf("┏━━━━━┳━━━━━━━┳━━━━━┳━━━━━━━┳━━━━┳━━━━┓\n");
+                   printf("┃Booknumber┃ Bookname     ┃  Author  ┃ Publisher    ┃ Pbtime ┃ Classfy┃\n");
+                   printf("┣━━━━━╋━━━━━━━╋━━━━━╋━━━━━━━╋━━━━╋━━━━┫\n");
+                   printf("┃%10s┃%14s┃%10s┃%14s┃%8s┃%8s┃\n",p->booknumber,p->bookname,p->author,p->publisher,p->pbtime,p->classfy);
+                   printf("┗━━━━━┻━━━━━━━┻━━━━━┻━━━━━━━┻━━━━┻━━━━┛\n");
+                   printf("\n");
+                   printf("请输入修改后的书籍信息：\n");
+                   puts("Enter the booknumber:");
+                   scanf("%s",p->booknumber);
+                   puts("Enter the bookname:");
+                   scanf("%s",p->bookname);
+                   puts("Enter the author:");
+                    scanf("%s",p->author);
+                    puts("Enter the publisher:");
+                   scanf("%s",p->publisher);
+                  puts("Enter the pbtime:");
+                  scanf("%s",p->pbtime);
+                    puts("Enter the classfy:");
+                  scanf("%s",p->classfy);
+                  printf("\n\n");
+                  flag=1;
+                } 
+            }
+            if(flag==0)
+            printf("抱歉，没有找到你要修改的书籍。\n");
+            else
+            printf("该图书信息已经修改。\n"); 
+    //将已经修改的链表保存到文件中；
+    ModifySaveToFile(head); 
+    printf("\n\n\n\t\t\t用户您好，按回车返回主菜单！\n");
+    getchar();getchar();         
+    } 
+    else if(h==3)
+    {
+         p=head; 
+          printf("请输入作者：");
+         scanf("%s",input);
+          while(p->next!= NULL)
+              {
+                p=p->next; 
+                if(strcmp(p->author,input)==0)
+                {
+                   printf("┏━━━━━┳━━━━━━━┳━━━━━┳━━━━━━━┳━━━━┳━━━━┓\n");
+                   printf("┃Booknumber┃ Bookname     ┃  Author  ┃ Publisher    ┃ Pbtime ┃ Classfy┃\n");
+                   printf("┣━━━━━╋━━━━━━━╋━━━━━╋━━━━━━━╋━━━━╋━━━━┫\n");
+                   printf("┃%10s┃%14s┃%10s┃%14s┃%8s┃%8s┃\n",p->booknumber,p->bookname,p->author,p->publisher,p->pbtime,p->classfy);
+                   printf("┗━━━━━┻━━━━━━━┻━━━━━┻━━━━━━━┻━━━━┻━━━━┛\n");
+                   printf("\n");
+                   printf("请输入修改后的书籍信息：\n");
+                   puts("Enter the booknumber:");
+                   scanf("%s",p->booknumber);
+                   puts("Enter the bookname:");
+                   scanf("%s",p->bookname);
+                   puts("Enter the author:");
+                    scanf("%s",p->author);
+                    puts("Enter the publisher:");
+                   scanf("%s",p->publisher);
+                  puts("Enter the pbtime:");
+                  scanf("%s",p->pbtime);
+                    puts("Enter the classfy:");
+                  scanf("%s",p->classfy);
+                  printf("\n\n");
+                  flag=1;
+                } 
+            }
+            if(flag==0)
+            printf("抱歉，没有找到你要修改的书籍。\n");
+            else
+            printf("该图书信息已经修改。\n"); 
+    //将已经修改的链表保存到文件中；
+    ModifySaveToFile(head); 
+    printf("\n\n\n\t\t\t用户您好，按回车返回主菜单！\n");
+    getchar();getchar();       
+    }
+    else
+    { 
+    printf("对不起，输入错误！\n");
+    printf("按回车返回主菜单！\n");
+    getchar();getchar(); 
+    } 
+}
+
+void DeleteBookInfo()
+{ system("cls");
+int flag=0;
+   struct BooksInfo *p,*head,*prev;
+   char inputname[20];
+   //从文件中读入信息到链表里; 
+   head=ReadInfoToLinkedList();
+    printf("请输入要删除的书籍名称：\n");
+       scanf("%s",inputname); 
+       //遍历链表以找到要修改的书籍节点; 
+          prev=head;
+          p=prev->next;
+          if(strcmp(p->bookname,inputname)==0) 
+             {
+                prev=p->next;       
+             } 
+          while(p->next!= NULL)
+           {
+             prev=p;
+             p=p->next; 
+             if(strcmp(p->bookname,inputname)==0) 
+                {
+                    prev->next=p->next;  
+                    flag=1;  
+                } 
+           }
+           if(flag==0)
+           printf("抱歉，没有找到你要删除的图书!\n");
+           else
+           printf("已经将要删除的书籍信息删除。\n");
+    //将已经修改的链表保存到文件中；
+    ModifySaveToFile(head); 
+    printf("\n\n\n\t\t\t用户您好，按回车返回主菜单！\n");
+    getchar(); getchar();
+    return;
+}
+void mainMenu()
+{
+     printf("\n\t\t************欢迎使用图书管理系统***********\n\n");
+ 
+  printf("             ┏━┓━━━━━━━━━━━━━━━━━━━┏━┓\n"); 
+  printf("             ┃  ┃              图书管理系统            ┃  ┃\n");
+  printf("             ┃  ┗━━━━━━━━━━━━━━━━━━━┛  ┃\n");
+  printf("             ┃               ●[1]图书信息录入              ┃\n");
+  printf("             ┃               ●[2]图书信息列表              ┃\n");
+  printf("             ┃               ●[3]图书信息查找              ┃\n");
+  printf("             ┃               ●[4]图书信息排序              ┃\n");
+  printf("             ┃               ●[5]图书信息修改              ┃\n");    //如果有重名的书籍必须一个一个都修改了才行（需要改进）；
+  printf("             ┃               ●[6]图书信息删除              ┃\n");  
+  printf("             ┃               ●[7]退出系统                  ┃\n");
+  printf("             ┗━━━━━━━━━━━━━━━━━━━━━━━┛\n");
+  printf("                               请选择:");
+  return;
+}
+  
+
+
+int main()
+{
+char choice; 
+mainMenu();
+
+     while(1)
+    {
+    fflush(stdin);
+    scanf("%c",&choice);
+
+   if(choice=='1')
+     {
+       fflush(stdin); 
+       AddBooks();
+       system("cls");
+       mainMenu();
+     } 
+     else if(choice=='2')
+     {
+       fflush(stdin); 
+       BooksList();
+       system("cls");
+              mainMenu();
+             
+     }
+      else if(choice=='3')
+      {
+         fflush(stdin);
+         SearchBook();
+         system("cls");
+         mainMenu();
+         
+      }
+      else if(choice=='4')
+      {
+         BooksSort();
+         system("cls");
+         mainMenu();
+      
+         
+      }
+      else if(choice=='5')
+      {
+         ModifyBookInfo(); 
+         system("cls");
+         mainMenu();
+       
+         }
+      else if(choice=='6')
+      {
+         DeleteBookInfo();
+         system("cls");
+         mainMenu();
+     }
+      else if(choice=='7')
+           exit(1);
+      else
+      {getchar();
+          printf("\t\t\t   抱歉，输入错误！\n\t\t\t   请重新输入:");
+          }
+     
+    }
+return 0;
+}
